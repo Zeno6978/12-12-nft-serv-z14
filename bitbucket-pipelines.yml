@@ -1,0 +1,14 @@
+image: google/cloud-sdk:slim
+
+pipelines:
+  branches:
+    main:
+      - step:
+          name: Deploy to Cloud Run
+          script:
+            - echo "$GCP_SA_KEY" > gcp-key.json
+            - gcloud auth activate-service-account --key-file=gcp-key.json
+            - gcloud config set project "$GCP_PROJECT_ID"
+            - gcloud config set run/region "$GCP_REGION"
+            - gcloud builds submit --tag gcr.io/$GCP_PROJECT_ID/12-12-nft-serv-z14
+            - gcloud run deploy 12-12-nft-serv-z14 --image gcr.io/$GCP_PROJECT_ID/12-12-nft-serv-z14 --platform managed --allow-unauthenticated

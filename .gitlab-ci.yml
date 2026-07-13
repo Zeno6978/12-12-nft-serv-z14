@@ -1,0 +1,16 @@
+image: google/cloud-sdk:slim
+
+stages:
+  - deploy
+
+deploy_cloud_run:
+  stage: deploy
+  only:
+    - main
+  script:
+    - echo "$GCP_SA_KEY" > ${CI_PROJECT_DIR}/gcp-key.json
+    - gcloud auth activate-service-account --key-file=${CI_PROJECT_DIR}/gcp-key.json
+    - gcloud config set project "$GCP_PROJECT_ID"
+    - gcloud config set run/region "$GCP_REGION"
+    - gcloud builds submit --tag gcr.io/$GCP_PROJECT_ID/12-12-nft-serv-z14
+    - gcloud run deploy 12-12-nft-serv-z14 --image gcr.io/$GCP_PROJECT_ID/12-12-nft-serv-z14 --platform managed --allow-unauthenticated
